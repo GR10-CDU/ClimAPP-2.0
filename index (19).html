@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Climapp · Concepción del Uruguay</title>
+<meta name="theme-color" content="#0a0a0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overscroll-behavior: none; }
+
+  :root {
+    --font-serif: 'Newsreader', Georgia, serif;
+    --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+  [data-font="tecnico"] {
+    --font-serif: 'Space Grotesk', -apple-system, sans-serif;
+    --font-sans: 'Space Grotesk', -apple-system, sans-serif;
+    --font-mono: 'Space Mono', ui-monospace, monospace;
+  }
+  [data-font="humanista"] {
+    --font-serif: 'Source Serif 4', Georgia, serif;
+    --font-sans: 'Source Sans 3', -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    background: #0a0a0c;
+    color: #fff;
+    overflow: hidden;
+  }
+  #root { width: 100vw; height: 100vh; overflow: hidden; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+
+  /* ===== Bento cards ===== */
+  .card {
+    border-radius: 22px; padding: 16px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform 0.15s ease;
+  }
+  .card.tap:active { transform: scale(0.98); }
+  .card.xl { grid-column: span 2; min-height: 260px; }
+  .card.wide { grid-column: span 2; min-height: 140px; }
+  .card.tall { grid-row: span 2; min-height: 280px; }
+  .card.reg { min-height: 135px; }
+
+  /* color schemes (light/day defaults) */
+  .c-clima { background: linear-gradient(165deg, #ffb878 0%, #f08a42 45%, #c24a15 100%); color: #fff; }
+  .c-rio { background: linear-gradient(180deg, #123458 0%, #081c38 100%); color: #b8d5f0; }
+  .c-dolar { background: linear-gradient(135deg, #c8e080 0%, #8fb344 100%); color: #1a2808; }
+  .c-uv { background: linear-gradient(140deg, #ff8a4a 0%, #d84820 100%); color: #fff; }
+  .c-sol { background: linear-gradient(135deg, #ffe5a0 0%, #ffc970 100%); color: #3a2500; }
+  .c-cine { background: #0a0a0a; color: #ffcf3c; border: 1.5px solid rgba(255,207,60,0.35); }
+  .c-farm { background: linear-gradient(135deg, #c03028 0%, #8a1e18 100%); color: #ffdfd0; }
+  .c-dep { background: linear-gradient(140deg, #3d1d5c 0%, #240f38 100%); color: #d4b8f0; }
+  .c-fer { background: linear-gradient(135deg, #f0a8c0 0%, #d87090 100%); color: #4a0a28; }
+  .c-vto { background: linear-gradient(160deg, #5a7e8a 0%, #385460 100%); color: #d4ecf4; }
+  .c-prn { background: linear-gradient(155deg, #2a2740 0%, #1a172e 100%); color: #d8d6ee; }
+  .c-pesca { background: linear-gradient(140deg, #1e5841 0%, #0f3827 100%); color: #c8e8d6; }
+  .c-camara { background: #1a1a1f; color: #e8e8ed; border: 1px solid rgba(255,255,255,0.08); }
+  .c-radar { background: linear-gradient(160deg, #1e2a3d 0%, #0f1620 100%); color: #b8ccd8; }
+  .c-tel { background: linear-gradient(135deg, #d4c58a 0%, #9d8e54 100%); color: #2a2108; }
+  .c-horario { background: linear-gradient(165deg, #4a5568 0%, #2d3748 100%); color: #e8edf3; }
+
+  /* weather overrides for clima card */
+  .c-clima[data-w="despejado"] { background: linear-gradient(165deg, #ffd176 0%, #f5a03d 50%, #d67022 100%); }
+  .c-clima[data-w="nublado"] { background: linear-gradient(165deg, #a8b5c5 0%, #7a8a9e 50%, #4a5868 100%); }
+  .c-clima[data-w="lluvia"] { background: linear-gradient(165deg, #556678 0%, #384858 50%, #1e2835 100%); }
+  .c-clima[data-w="tormenta"] { background: linear-gradient(165deg, #3a3f52 0%, #22263a 50%, #0e1120 100%); }
+
+  /* theme dark overrides — subtle: cards stay colored but bg goes dark */
+  [data-theme="dark"] {
+    background: #0a0a0c;
+  }
+  [data-theme="light"] {
+    background: #f5f3ef;
+  }
+
+  /* Typography helpers */
+  .lbl {
+    font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    opacity: 0.72; font-family: var(--font-mono);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .serif { font-family: var(--font-serif); }
+  .mono { font-family: var(--font-mono); font-feature-settings: 'tnum'; }
+
+  .sep { height: 1px; background: currentColor; opacity: 0.18; margin: 10px 0; border: 0; }
+  .sep-dashed { height: 0; border: 0; border-top: 1px dashed currentColor; opacity: 0.22; margin: 10px 0; }
+
+  /* ===== Animations ===== */
+  @keyframes sunPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(255,220,150,0.5)); }
+    50% { transform: scale(1.06); filter: drop-shadow(0 0 40px rgba(255,230,170,0.85)); }
+  }
+  @keyframes sunSpin { to { transform: rotate(360deg); } }
+  @keyframes cloudDrift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-30px); }
+  }
+  @keyframes waveScroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-240px); }
+  }
+  @keyframes rainFall {
+    from { transform: translateY(-30px); opacity: 0; }
+    20% { opacity: 0.6; }
+    to { transform: translateY(260px); opacity: 0; }
+  }
+  @keyframes livePulse {
+    0%,100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  @keyframes softPop {
+    from { transform: translateY(4px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes twinkle { 0%,100% { opacity: 0.2 } 50% { opacity: 1 } }
+  @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes moonGlow {
+    0%,100% { filter: drop-shadow(0 0 8px rgba(255,240,200,0.3)); }
+    50% { filter: drop-shadow(0 0 16px rgba(255,240,200,0.6)); }
+  }
+  @keyframes flashSky {
+    0%, 92%, 100% { opacity: 0; }
+    93%, 95% { opacity: 0.55; }
+    94% { opacity: 0; }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes expandDown {
+    from { opacity: 0; max-height: 0; margin-top: 0; }
+    to { opacity: 1; max-height: 800px; margin-top: 10px; }
+  }
+
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #9edc9e; display: inline-block;
+    animation: livePulse 1.4s ease-in-out infinite;
+    box-shadow: 0 0 6px rgba(158,220,158,0.8);
+  }
+  .bob { animation: bob 3s ease-in-out infinite; }
+  .pop { animation: softPop 0.6s ease-out both; }
+
+  /* Tweaks panel */
+  .tweaks-panel {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    width: 300px;
+    background: rgba(18,18,22,0.94);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 18px;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    z-index: 9999;
+    color: #fff;
+    box-shadow: 0 20px 50px -10px rgba(0,0,0,0.6);
+    display: none;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+  }
+  .tweaks-panel.visible { display: block; }
+  .tweaks-title {
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(255,255,255,0.5);
+    margin-bottom: 14px;
+  }
+  .tweak-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .tweak-row:last-child { margin-bottom: 0; }
+  .tweak-label {
+    font-size: 12px; color: rgba(255,255,255,0.7);
+    display: flex; justify-content: space-between;
+  }
+  .tweak-label span { color: #fff; font-family: var(--font-mono); font-size: 11px; }
+  .seg {
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 2px; gap: 2px; flex-wrap: wrap;
+  }
+  .seg button {
+    flex: 1; min-width: 0;
+    background: transparent; border: 0;
+    color: rgba(255,255,255,0.6);
+    padding: 6px 6px; font-size: 11px;
+    font-family: inherit; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .seg button.active {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+  }
+  .seg button:hover:not(.active) { color: rgba(255,255,255,0.85); }
+
+  /* Pull-to-refresh */
+  .ptr {
+    position: absolute; top: 0; left: 0; right: 0;
+    display: flex; justify-content: center; align-items: center;
+    pointer-events: none; z-index: 10;
+    font-family: var(--font-mono);
+    font-size: 10px; letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.55);
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script>
+/* ============================================================
+   DATA LAYER — mock base + live fetchers
+   ============================================================ */
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzvLnlLEklkeI3gWCS4-o5CJlUmgiXOUP9VK9Dc4pb66U_Dk5w2TaGENgs6t23Tr1rf/exec';
+const LAT = -32.4846;
+const LON = -58.2372;
+
+const DAYS_ES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MONTHS_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+const WMO = {
+  0:['☀️','Despejado'], 1:['🌤️','Mayormente despejado'], 2:['⛅','Parcialmente nublado'], 3:['☁️','Nublado'],
+  45:['🌫️','Niebla'], 48:['🌫️','Niebla'],
+  51:['🌦️','Llovizna'], 53:['🌦️','Llovizna'], 55:['🌦️','Llovizna intensa'],
+  56:['🌧️','Llovizna helada'], 57:['🌧️','Llovizna helada'],
+  61:['🌧️','Lluvia leve'], 63:['🌧️','Lluvia'], 65:['🌧️','Lluvia fuerte'],
+  66:['🌧️','Lluvia helada'], 67:['🌧️','Lluvia helada'],
+  71:['🌨️','Nieve'], 73:['🌨️','Nieve'], 75:['🌨️','Nieve fuerte'],
+  80:['🌦️','Chubascos'], 81:['🌧️','Chubascos'], 82:['⛈️','Chubascos fuertes'],
+  95:['⛈️','Tormenta'], 96:['⛈️','Tormenta c/ granizo'], 99:['⛈️','Tormenta severa'],
+};
+const wmoIcon = (c) => (WMO[c] || ['⛅','Variable'])[0];
+const wmoText = (c) => (WMO[c] || ['⛅','Variable'])[1];
+const hourIcon = (code, isDay) => {
+  if (code === 0 || code === 1) return isDay ? '☀️' : '🌙';
+  if (code === 2) return isDay ? '⛅' : '☁️';
+  return wmoIcon(code);
+};
+const dirFromDeg = (d) => {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+  return dirs[Math.round(((d % 360) / 22.5)) % 16];
+};
+const beaufort = (kmh) => {
+  const ms = kmh / 3.6;
+  const scale = [[0.3,0,'Calma'],[1.5,1,'Aire ligero'],[3.3,2,'Brisa muy débil'],[5.5,3,'Brisa suave'],
+    [7.9,4,'Brisa moderada'],[10.7,5,'Brisa fresca'],[13.8,6,'Brisa fuerte'],[17.1,7,'Viento fuerte'],
+    [20.7,8,'Viento duro'],[24.4,9,'Muy duro'],[28.4,10,'Temporal'],[32.6,11,'Borrasca'],[99,12,'Huracán']];
+  for (const [lim,n,name] of scale) if (ms <= lim) return { num: n, nombre: name };
+  return { num: 12, nombre: 'Huracán' };
+};
+const hhmm = (iso) => {
+  const d = new Date(iso);
+  return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+};
+const moonPhase = (date) => {
+  const y = date.getFullYear(), m = date.getMonth()+1, d = date.getDate();
+  let r = y % 100;
+  r %= 19; if (r > 9) r -= 19;
+  r = ((r*11) % 30) + m + d;
+  if (m < 3) r += 2;
+  r -= (y < 2000 ? 4 : 8.3);
+  r = Math.floor(r + 0.5) % 30;
+  const age = r < 0 ? r + 30 : r;
+  const illumination = Math.round((1 - Math.cos((age / 29.53) * 2 * Math.PI)) / 2 * 100);
+  let fase;
+  if (age < 1.84) fase = 'Luna nueva';
+  else if (age < 5.53) fase = 'Creciente';
+  else if (age < 9.22) fase = 'Cuarto creciente';
+  else if (age < 12.91) fase = 'Gibosa creciente';
+  else if (age < 16.61) fase = 'Luna llena';
+  else if (age < 20.30) fase = 'Gibosa menguante';
+  else if (age < 23.99) fase = 'Cuarto menguante';
+  else if (age < 27.68) fase = 'Menguante';
+  else fase = 'Luna nueva';
+  return { fase, iluminacion: illumination, age };
+};
+const pescaIndice = (temp, viento, presion, fase) => {
+  let s = 5;
+  if (temp >= 18 && temp <= 26) s += 1.5; else if (temp >= 14 && temp <= 30) s += 0.5;
+  if (viento <= 15) s += 1; else if (viento <= 25) s += 0.2; else s -= 1;
+  if (presion >= 1012 && presion <= 1020) s += 1;
+  if (fase.includes('llena') || fase.includes('nueva')) s += 1.5;
+  else if (fase.includes('creciente') || fase.includes('menguante')) s += 0.5;
+  s = Math.max(0, Math.min(10, s));
+  const etiqueta = s >= 8 ? 'Excelente' : s >= 6.5 ? 'Bueno' : s >= 5 ? 'Regular' : s >= 3 ? 'Malo' : 'Muy malo';
+  return { indice: Number(s.toFixed(1)), etiqueta };
+};
+
+/* ---- Mock base (always used as fallback, then merged with live) ---- */
+window.CLIMA_DATA = {
+  ciudad: 'Concepción del Uruguay',
+  provincia: 'Entre Ríos',
+  fecha: '—',
+  diaSemana: '',
+  temp: 23, tempAparente: 24, tempMin: 17, tempMax: 27,
+  condicion: 'Cargando…', condicionIcon: '⛅',
+  humedad: 68, presion: 1014, uv: 4, visibilidad: 18, nubosidad: 45,
+  puntoRocio: 17,
+  rio: {
+    nivel: 2.84, tendencia: '+0.08',
+    estado: 'Normal',
+    alerta: 4.50, evacuacion: 5.50, puerto: 'Puerto CdU',
+    min7d: 2.62, max7d: 2.91,
+    historial: [2.62, 2.68, 2.71, 2.74, 2.78, 2.80, 2.84],
+    tempAgua: 24,
+    estaciones: [
+      { nombre: 'Salto Grande Ar.', nivel: 34.49, variacion: -0.02, estado: 'estable' },
+      { nombre: 'Salto Grande Ab.', nivel: 7.15, variacion: -0.62, estado: 'baja' },
+      { nombre: 'Concordia', nivel: 2.70, variacion: -0.02, estado: 'baja' },
+      { nombre: 'Colón', nivel: 2.42, variacion: 0.06, estado: 'crece' },
+      { nombre: 'Concepción del U.', nivel: 2.00, variacion: 0.02, estado: 'estable' },
+      { nombre: 'Paysandú', nivel: 2.18, variacion: 0.80, estado: 'crece' },
+      { nombre: 'Fray Bentos', nivel: 1.62, variacion: 0.61, estado: 'crece' },
+      { nombre: 'Nueva Palmira', nivel: 0.95, variacion: -0.05, estado: 'baja' },
+    ],
+  },
+  viento: { velocidad: 14, rafaga: 26, direccion: 'ENE', direccionDeg: 67, beaufort: 3, beaufortNombre: 'Brisa suave' },
+  horario: Array.from({length:12}, (_,i) => ({
+    hora: String((new Date().getHours()+i)%24).padStart(2,'0')+'h',
+    temp: 20+((i*3)%8), icon: ['⛅','☀️','🌤️','🌙'][i%4], prob: (i*11)%60,
+  })),
+  diario: [
+    { dia: 'Hoy', fecha: String(new Date().getDate()), icon: '⛅', max: 24, min: 15, prob: 20, cond: 'Parcial' },
+    { dia: 'Mañ', fecha: String(new Date().getDate()+1), icon: '🌧️', max: 22, min: 14, prob: 65, cond: 'Lluvia' },
+    { dia: 'Pas', fecha: String(new Date().getDate()+2), icon: '☀️', max: 26, min: 14, prob: 5, cond: 'Soleado' },
+  ],
+  extendido: [],
+  feriados: [
+    { nombre: 'Día del Trabajador', fecha: '1 may', dias: 11, tipo: 'Inamovible', pais: '🇦🇷' },
+    { nombre: 'Revolución de Mayo', fecha: '25 may', dias: 35, tipo: 'Inamovible', pais: '🇦🇷' },
+  ],
+  deportes: [
+    { liga: 'PRIMERA', local: 'Boca', visitante: 'River', hora: 'DOM 17:00' },
+    { liga: 'PRIMERA', local: 'Independiente', visitante: 'Racing', hora: 'SÁB 19:00' },
+    { liga: 'SUDAM.', local: 'Rosario C.', visitante: 'Cruzeiro', hora: 'MAR 21:30' },
+  ],
+  alertas: [],
+  sol: { salida: '07:18', puesta: '18:42' },
+  luna: { fase: 'Cuarto creciente', iluminacion: 62, salida: '12:04', puesta: '00:31' },
+  pesca: {
+    indice: 7.2, etiqueta: 'Bueno',
+    factores: [
+      { icon: '🌗', name: 'Cuarto creciente', status: 'good' },
+      { icon: '💨', name: 'Viento 14km/h', status: 'neutral' },
+      { icon: '🌡️', name: 'Temp 23°', status: 'good' },
+      { icon: '📉', name: 'Presión estable', status: 'good' },
+    ],
+  },
+  uvDetalle: { valor: 4, etiqueta: 'Moderado', recomendacion: 'Protección recomendada' },
+  cotizaciones: [
+    { nombre: 'Oficial', compra: 1085, venta: 1105 },
+    { nombre: 'Blue', compra: 1220, venta: 1240 },
+    { nombre: 'MEP', compra: 1165, venta: 1175 },
+    { nombre: 'Bitcoin', venta: 94320, unidad: 'USD' },
+  ],
+  farmacia: {
+    nombre: 'Alberdi', direccion: 'Alberdi 764', telefono: '3442-422332',
+    otras: ['Despertar del O.', 'San Martín'],
+  },
+  telefonos: [
+    { nombre: 'Emergencias', num: '911', icon: '🚨' },
+    { nombre: 'Bomberos', num: '100', icon: '🚒' },
+    { nombre: 'Hospital Urquiza', num: '03442 425-050', icon: '🏥' },
+    { nombre: 'Defensa Civil', num: '103', icon: '⚠️' },
+    { nombre: 'Prefectura', num: '106', icon: '⚓' },
+  ],
+  cine: [
+    { titulo: 'Hoppers', hora: '17:00', formato: '3D' },
+    { titulo: 'Proyecto Fin del Mundo', hora: '19:00', formato: '2D' },
+    { titulo: 'Hamnet', hora: '21:00', formato: '2D' },
+  ],
+  camara: { ubicacion: 'Río Uruguay · Colón', estado: 'En vivo' },
+  radar: { estado: 'Sin precipitación cercana' },
+  actualizado: 'cargando…',
+  _weatherKey: 'parcial',
+};
+
+/* ---- Fetchers ---- */
+async function fetchClima() {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}`
+    + `&current=temperature_2m,apparent_temperature,relative_humidity_2m,is_day,precipitation,weather_code,`
+    + `pressure_msl,cloud_cover,wind_speed_10m,wind_direction_10m,wind_gusts_10m,uv_index`
+    + `&hourly=temperature_2m,precipitation_probability,weather_code,is_day,visibility`
+    + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset,uv_index_max`
+    + `&forecast_days=10&timezone=America%2FArgentina%2FBuenos_Aires`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('open-meteo failed');
+  return r.json();
+}
+async function fetchDolar() {
+  try { const r = await fetch('https://dolarapi.com/v1/dolares'); if (!r.ok) throw 0; return r.json(); }
+  catch (e) { return null; }
+}
+async function fetchBtc() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    return j.bitcoin?.usd;
+  } catch (e) { return null; }
+}
+async function fetchFeriados() {
+  try {
+    const y = new Date().getFullYear();
+    const r = await fetch(`https://api.argentinadatos.com/v1/feriados/${y}`);
+    if (!r.ok) throw 0;
+    return r.json();
+  } catch (e) { return null; }
+}
+async function fetchRio() {
+  try {
+    const r = await fetch(APPS_SCRIPT_URL);
+    if (!r.ok) throw 0;
+    const j = await r.json();
+    if (!j.success) throw 0;
+    return j;
+  } catch (e) { return null; }
+}
+async function fetchFarmacias() {
+  try {
+    const r = await fetch(APPS_SCRIPT_URL + '?action=farmacias');
+    if (!r.ok) throw 0;
+    return r.json();
+  } catch (e) { return null; }
+}
+async function fetchDeportes() {
+  try {
+    const r = await fetch(APPS_SCRIPT_URL + '?action=deportes');
+    if (!r.ok) throw 0;
+    return r.json();
+  } catch (e) { return null; }
+}
+
+/* ---- Builders / mergers ---- */
+function buildFromMeteo(m, mock) {
+  const cur = m.current;
+  const hourly = m.hourly;
+  const daily = m.daily;
+  const now = new Date();
+
+  const nowIdx = hourly.time.findIndex(t => new Date(t) >= now) - 1;
+  const startIdx = Math.max(0, nowIdx);
+  const horario = [];
+  for (let i = 0; i < 12; i++) {
+    const idx = startIdx + i;
+    if (!hourly.time[idx]) break;
+    const t = new Date(hourly.time[idx]);
+    horario.push({
+      hora: String(t.getHours()).padStart(2,'0')+'h',
+      temp: Math.round(hourly.temperature_2m[idx]),
+      icon: hourIcon(hourly.weather_code[idx], hourly.is_day[idx] === 1),
+      prob: hourly.precipitation_probability[idx] || 0,
+    });
+  }
+
+  const allDaily = daily.time.map((iso,i) => {
+    const d = new Date(iso + 'T12:00:00');
+    return {
+      dia: DAYS_ES[d.getDay()],
+      fecha: String(d.getDate()),
+      icon: wmoIcon(daily.weather_code[i]),
+      max: Math.round(daily.temperature_2m_max[i]),
+      min: Math.round(daily.temperature_2m_min[i]),
+      prob: daily.precipitation_probability_max[i] || 0,
+      cond: wmoText(daily.weather_code[i]),
+    };
+  });
+  const todayStr = now.toISOString().slice(0,10);
+  const todayIdx = daily.time.indexOf(todayStr);
+  const fromIdx = todayIdx >= 0 ? todayIdx : 0;
+  const diario = allDaily.slice(fromIdx, fromIdx+3);
+  const extendido = allDaily.slice(fromIdx+3, fromIdx+10);
+
+  const sunrise = hhmm(daily.sunrise[fromIdx]);
+  const sunset = hhmm(daily.sunset[fromIdx]);
+  const moon = moonPhase(now);
+  const bf = beaufort(cur.wind_speed_10m);
+  const visIdx = hourly.time.findIndex(t => t.startsWith(todayStr));
+  const vis = visIdx >= 0 ? Math.round((hourly.visibility[visIdx] || 15000) / 1000) : 15;
+
+  const ico = hourIcon(cur.weather_code, cur.is_day === 1);
+  const condTxt = wmoText(cur.weather_code);
+  let weatherKey = 'parcial';
+  const wc = cur.weather_code;
+  if (wc === 0 || wc === 1) weatherKey = 'despejado';
+  else if (wc === 2) weatherKey = 'parcial';
+  else if (wc === 3 || wc === 45 || wc === 48) weatherKey = 'nublado';
+  else if (wc >= 95) weatherKey = 'tormenta';
+  else if (wc >= 51) weatherKey = 'lluvia';
+
+  const dayName = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'][now.getDay()];
+  const fechaStr = `${now.getDate()} ${MONTHS_ES[now.getMonth()]} ${now.getFullYear()}`;
+  const pesca = pescaIndice(cur.temperature_2m, cur.wind_speed_10m, cur.pressure_msl, moon.fase);
+
+  return {
+    ...mock,
+    fecha: fechaStr,
+    diaSemana: dayName,
+    temp: Math.round(cur.temperature_2m),
+    tempAparente: Math.round(cur.apparent_temperature),
+    tempMin: Math.round(daily.temperature_2m_min[fromIdx]),
+    tempMax: Math.round(daily.temperature_2m_max[fromIdx]),
+    condicion: condTxt,
+    condicionIcon: ico,
+    humedad: Math.round(cur.relative_humidity_2m),
+    presion: Math.round(cur.pressure_msl),
+    uv: Math.round(cur.uv_index ?? 0),
+    visibilidad: vis,
+    nubosidad: Math.round(cur.cloud_cover ?? 0),
+    puntoRocio: Math.round(cur.temperature_2m - ((100 - cur.relative_humidity_2m)/5)),
+    viento: {
+      velocidad: Math.round(cur.wind_speed_10m),
+      rafaga: Math.round(cur.wind_gusts_10m ?? cur.wind_speed_10m),
+      direccion: dirFromDeg(cur.wind_direction_10m),
+      direccionDeg: Math.round(cur.wind_direction_10m),
+      beaufort: bf.num, beaufortNombre: bf.nombre,
+    },
+    horario, diario, extendido,
+    sol: { salida: sunrise, puesta: sunset },
+    luna: { fase: moon.fase, iluminacion: moon.iluminacion, salida: mock.luna.salida, puesta: mock.luna.puesta },
+    pesca: {
+      ...pesca,
+      factores: [
+        { icon: '🌗', name: moon.fase, status: (moon.fase.includes('llena')||moon.fase.includes('nueva')) ? 'good' : 'neutral' },
+        { icon: '💨', name: `Viento ${Math.round(cur.wind_speed_10m)}km/h`, status: cur.wind_speed_10m<=15?'good':cur.wind_speed_10m<=25?'neutral':'bad' },
+        { icon: '🌡️', name: `Temp ${Math.round(cur.temperature_2m)}°`, status: (cur.temperature_2m>=18&&cur.temperature_2m<=26)?'good':'neutral' },
+        { icon: '📉', name: `Presión ${Math.round(cur.pressure_msl)}`, status: (cur.pressure_msl>=1012&&cur.pressure_msl<=1020)?'good':'neutral' },
+      ],
+    },
+    uvDetalle: {
+      valor: Math.round(cur.uv_index ?? 0),
+      etiqueta: (cur.uv_index ?? 0) < 3 ? 'Bajo' : (cur.uv_index ?? 0) < 6 ? 'Moderado' : (cur.uv_index ?? 0) < 8 ? 'Alto' : 'Muy alto',
+      recomendacion: (cur.uv_index ?? 0) < 3 ? 'Sin protección' : (cur.uv_index ?? 0) < 6 ? 'Protección recomendada' : 'Protección obligatoria',
+    },
+    radar: { estado: cur.precipitation > 0 ? 'Lluvia activa' : 'Sin precipitación cercana' },
+    actualizado: 'recién',
+    _weatherKey: weatherKey,
+  };
+}
+
+function mergeRio(data, rio) {
+  if (!rio?.data?.puertos) return data;
+  const p = rio.data.puertos;
+  const cdu = p.concepcion;
+  const hist = (rio.historial || []).map(h => h.altura);
+  const min7d = hist.length ? Math.min(...hist) : data.rio.min7d;
+  const max7d = hist.length ? Math.max(...hist) : data.rio.max7d;
+
+  const orderedKeys = ['saltoGrandeArriba','saltoGrandeAbajo','concordia','colon','concepcion','paysandu','frayBentos','nuevaPalmira'];
+  const shortNames = {
+    saltoGrandeArriba: 'Salto Grande Ar.', saltoGrandeAbajo: 'Salto Grande Ab.',
+    concordia: 'Concordia', colon: 'Colón', concepcion: 'Concepción del U.',
+    paysandu: 'Paysandú', frayBentos: 'Fray Bentos', nuevaPalmira: 'Nueva Palmira',
+  };
+  const estaciones = orderedKeys.filter(k => p[k]).map(k => ({
+    nombre: shortNames[k],
+    nivel: p[k].nivel,
+    variacion: p[k].variacion,
+    estado: p[k].estado,
+    fechaHora: p[k].fechaHora,
+  }));
+
+  // tendencia
+  const varCm = Math.round((cdu?.variacion || 0) * 100);
+  const tendencia = (varCm >= 0 ? '+' : '') + varCm + ' cm';
+
+  data.rio = {
+    ...data.rio,
+    nivel: cdu?.nivel ?? data.rio.nivel,
+    tendencia,
+    estado: cdu?.estado ?? 'estable',
+    historial: hist.length ? hist : data.rio.historial,
+    min7d, max7d,
+    tempAgua: rio.data.tempAgua ?? data.rio.tempAgua,
+    estaciones,
+    actualizado: cdu?.fechaHora || '',
+  };
+  return data;
+}
+
+function mergeDolar(data, dolar, btc) {
+  if (!dolar) return data;
+  const map = { oficial: 'Oficial', blue: 'Blue', bolsa: 'MEP', contadoconliqui: 'CCL' };
+  const cotiz = dolar
+    .filter(d => map[d.casa])
+    .map(d => ({ nombre: map[d.casa], compra: Math.round(d.compra), venta: Math.round(d.venta) }));
+  if (btc) cotiz.push({ nombre: 'Bitcoin', venta: Math.round(btc), unidad: 'USD' });
+  if (cotiz.length) data.cotizaciones = cotiz;
+  return data;
+}
+
+function mergeFeriados(data, feriados) {
+  if (!feriados || !Array.isArray(feriados)) return data;
+  const now = new Date();
+  const prox = feriados
+    .map(f => {
+      const [y,m,d] = f.fecha.split('-').map(Number);
+      const dt = new Date(y, m-1, d);
+      const dias = Math.ceil((dt - now) / 86400000);
+      return { ...f, dt, dias };
+    })
+    .filter(f => f.dias >= 0)
+    .sort((a,b) => a.dias - b.dias)
+    .slice(0, 4)
+    .map(f => ({
+      nombre: f.nombre,
+      fecha: `${f.dt.getDate()} ${MONTHS_ES[f.dt.getMonth()]}`,
+      dias: f.dias,
+      tipo: f.tipo === 'inamovible' ? 'Inamovible' : f.tipo === 'trasladable' ? 'Trasladable' : (f.tipo||'Feriado'),
+      pais: '🇦🇷',
+    }));
+  if (prox.length) data.feriados = prox;
+  return data;
+}
+
+function mergeFarmacias(data, f) {
+  if (!f) return data;
+  // Try to adapt loosely based on possible shapes
+  if (f.success && f.data) f = f.data;
+  if (Array.isArray(f) && f.length) {
+    const main = f[0];
+    data.farmacia = {
+      nombre: main.nombre || main.farmacia || 'Farmacia de turno',
+      direccion: main.direccion || '',
+      telefono: main.telefono || '',
+      otras: f.slice(1, 4).map(x => x.nombre || x.farmacia).filter(Boolean),
+    };
+  } else if (f.nombre || f.farmacia) {
+    data.farmacia = {
+      nombre: f.nombre || f.farmacia,
+      direccion: f.direccion || '',
+      telefono: f.telefono || '',
+      otras: data.farmacia.otras,
+    };
+  }
+  return data;
+}
+
+function mergeDeportes(data, d) {
+  if (!d) return data;
+  if (d.success && d.data) d = d.data;
+  if (!Array.isArray(d) || !d.length) return data;
+  data.deportes = d.slice(0, 5).map(ev => ({
+    liga: (ev.liga || ev.competencia || 'FUTBOL').toUpperCase().slice(0, 10),
+    local: ev.local || ev.equipoLocal || ev.home || '?',
+    visitante: ev.visitante || ev.equipoVisitante || ev.away || '?',
+    hora: ev.hora || ev.fecha || ev.horario || '',
+  }));
+  return data;
+}
+
+/* ---- Bootstrap ---- */
+async function bootData() {
+  try {
+    const [meteo, dolar, btc, feriados, rio, farmacias, deportes] = await Promise.all([
+      fetchClima().catch(() => null),
+      fetchDolar(),
+      fetchBtc(),
+      fetchFeriados(),
+      fetchRio(),
+      fetchFarmacias(),
+      fetchDeportes(),
+    ]);
+
+    let data = { ...window.CLIMA_DATA };
+    if (meteo) data = buildFromMeteo(meteo, data);
+    data = mergeRio(data, rio);
+    data = mergeDolar(data, dolar, btc);
+    data = mergeFeriados(data, feriados);
+    data = mergeFarmacias(data, farmacias);
+    data = mergeDeportes(data, deportes);
+
+    window.CLIMA_DATA = data;
+    window.__liveDataReady = true;
+    window.dispatchEvent(new CustomEvent('clima-data-updated', { detail: data }));
+    console.log('[Climapp] Datos cargados', data);
+  } catch (e) {
+    console.warn('[Climapp] Error cargando datos:', e);
+    window.CLIMA_DATA.actualizado = 'sin conexión';
+    window.dispatchEvent(new CustomEvent('clima-data-updated', { detail: window.CLIMA_DATA }));
+  }
+}
+</script>
+
+<!-- ============================================================
+     REACT UI — Bento grid
+     ============================================================ -->
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+function LiveDot({ color }) {
+  return <span className="live-dot" style={color ? {background: color, boxShadow: `0 0 6px ${color}`} : {}}/>;
+}
+
+function Sparkline({data, color, h=30}) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v,i) => `${(i/(data.length-1))*100},${h - ((v-min)/range) * (h-4) - 2}`).join(' ');
+  const fillPts = `0,${h} ${pts} 100,${h}`;
+  const gid = `spk-${color.replace(/[^a-z0-9]/gi,'')}`;
+  return (
+    <svg viewBox={`0 0 100 ${h}`} preserveAspectRatio="none" style={{width:'100%', height:h, display:'block'}}>
+      <defs>
+        <linearGradient id={gid} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.4"/>
+          <stop offset="100%" stopColor={color} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polygon points={fillPts} fill={`url(#${gid})`}/>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function Compass({deg}) {
+  return (
+    <svg width="52" height="52" viewBox="0 0 48 48" style={{flexShrink:0}}>
+      <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="1"/>
+      <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" strokeOpacity="0.45" strokeWidth="0.8" strokeDasharray="2 4"/>
+      <text x="24" y="8" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.65" fontFamily="monospace">N</text>
+      <text x="24" y="45" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.65" fontFamily="monospace">S</text>
+      <text x="3" y="26" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.65" fontFamily="monospace">O</text>
+      <text x="45" y="26" textAnchor="middle" fontSize="6" fill="currentColor" opacity="0.65" fontFamily="monospace">E</text>
+      <g transform={`rotate(${deg} 24 24)`}>
+        <path d="M24,6 L20,26 L24,22 L28,26 Z" fill="currentColor" opacity="0.95"/>
+      </g>
+    </svg>
+  );
+}
+
+function UVMeter({value}) {
+  const pct = Math.min(100, (value / 11) * 100);
+  return (
+    <svg viewBox="0 0 100 12" style={{width:'100%', height:10, display:'block'}}>
+      <defs>
+        <linearGradient id="uvGrad" x1="0" x2="1">
+          <stop offset="0%" stopColor="#9edc9e"/>
+          <stop offset="30%" stopColor="#ffe066"/>
+          <stop offset="60%" stopColor="#ff9a3d"/>
+          <stop offset="85%" stopColor="#e8483a"/>
+          <stop offset="100%" stopColor="#9d4dc7"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="4" width="100" height="4" rx="2" fill="url(#uvGrad)" opacity="0.8"/>
+      <circle cx={pct} cy="6" r="4" fill="#fff" stroke="rgba(0,0,0,0.3)" strokeWidth="0.5"/>
+    </svg>
+  );
+}
+
+function MoonPhase({illumination}) {
+  const r = 20, cx = 22, cy = 22;
+  const phase = Math.max(0, Math.min(1, illumination / 100));
+  return (
+    <svg width="44" height="44" viewBox="0 0 44 44">
+      <circle cx={cx} cy={cy} r={r} fill="#1a1a20"/>
+      <path
+        d={`M ${cx},${cy-r} A ${r*(1-phase*2)},${r} 0 0 1 ${cx},${cy+r} A ${r},${r} 0 0 0 ${cx},${cy-r} Z`}
+        fill="#fce7a6" opacity="0.95"
+      />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="rgba(255,255,255,0.1)"/>
+    </svg>
+  );
+}
+
+function Sun() {
+  return (
+    <div style={{
+      position:'absolute', top:18, right:22, width:90, height:90,
+      animation:'sunPulse 4.5s ease-in-out infinite', pointerEvents:'none',
+    }}>
+      <div style={{
+        position:'absolute', inset:0,
+        background:`conic-gradient(from 0deg, transparent 0 4deg, rgba(255,250,210,0.42) 4deg 8deg, transparent 8deg 22deg,
+                     rgba(255,250,210,0.42) 22deg 26deg, transparent 26deg 40deg,
+                     rgba(255,250,210,0.42) 40deg 44deg, transparent 44deg 58deg,
+                     rgba(255,250,210,0.42) 58deg 62deg, transparent 62deg 76deg,
+                     rgba(255,250,210,0.42) 76deg 80deg, transparent 80deg 94deg,
+                     rgba(255,250,210,0.42) 94deg 98deg, transparent 98deg 112deg,
+                     rgba(255,250,210,0.42) 112deg 116deg, transparent 116deg 130deg,
+                     rgba(255,250,210,0.42) 130deg 134deg, transparent 134deg 148deg,
+                     rgba(255,250,210,0.42) 148deg 152deg, transparent 152deg 166deg,
+                     rgba(255,250,210,0.42) 166deg 170deg, transparent 170deg 184deg,
+                     rgba(255,250,210,0.42) 184deg 188deg, transparent 188deg 202deg,
+                     rgba(255,250,210,0.42) 202deg 206deg, transparent 206deg 220deg,
+                     rgba(255,250,210,0.42) 220deg 224deg, transparent 224deg 238deg,
+                     rgba(255,250,210,0.42) 238deg 242deg, transparent 242deg 256deg,
+                     rgba(255,250,210,0.42) 256deg 260deg, transparent 260deg 274deg,
+                     rgba(255,250,210,0.42) 274deg 278deg, transparent 278deg 292deg,
+                     rgba(255,250,210,0.42) 292deg 296deg, transparent 296deg 310deg,
+                     rgba(255,250,210,0.42) 310deg 314deg, transparent 314deg 328deg,
+                     rgba(255,250,210,0.42) 328deg 332deg, transparent 332deg 346deg,
+                     rgba(255,250,210,0.42) 346deg 350deg, transparent 350deg 360deg)`,
+        animation:'sunSpin 80s linear infinite',
+        mask: 'radial-gradient(circle, transparent 28%, #000 32%, #000 60%, transparent 75%)',
+        WebkitMask: 'radial-gradient(circle, transparent 28%, #000 32%, #000 60%, transparent 75%)',
+      }}/>
+      <div style={{
+        position:'absolute', inset:20, borderRadius:'50%',
+        background:'radial-gradient(circle, #fff9e6 0%, #ffe8a8 55%, #ffc970 100%)',
+        boxShadow:'0 0 40px rgba(255,230,150,0.6)',
+      }}/>
+    </div>
+  );
+}
+
+function Clouds({density=1}) {
+  const clouds = [
+    {w:60, h:18, t:40, l:20, d:'0s'},
+    {w:40, h:12, t:70, l:100, d:'-3s'},
+    {w:80, h:22, t:25, l:180, d:'-6s', op:0.15},
+  ];
+  return (
+    <>
+      {clouds.slice(0, Math.max(1, Math.round(3*density))).map((c, i) => (
+        <div key={i} style={{
+          position:'absolute', width:c.w, height:c.h, top:c.t, left:c.l,
+          borderRadius:'50%',
+          background:`rgba(255,255,255,${c.op ?? 0.22})`,
+          filter:'blur(1px)',
+          animation:`cloudDrift 12s ease-in-out ${c.d} infinite alternate`,
+          pointerEvents:'none',
+        }}/>
+      ))}
+    </>
+  );
+}
+
+function Rain() {
+  const drops = Array.from({length:20}).map((_, i) => {
+    const x = (i * 19) % 100;
+    const dur = 0.9 + (i % 5) * 0.12;
+    const delay = -(i * 0.14) % 1.5;
+    return (
+      <div key={i} style={{
+        position:'absolute', left: `${x}%`, top: 0,
+        width: 1.5, height: 16,
+        background:'linear-gradient(180deg, transparent, rgba(200,220,240,0.7), transparent)',
+        animation: `rainFall ${dur}s linear ${delay}s infinite`,
+        pointerEvents:'none',
+      }}/>
+    );
+  });
+  return <>{drops}</>;
+}
+
+function RiverWaves() {
+  return (
+    <div style={{position:'absolute', left:0, right:0, bottom:0, height:'55%', overflow:'hidden', pointerEvents:'none'}}>
+      <svg viewBox="0 0 480 80" preserveAspectRatio="none"
+        style={{position:'absolute', left:0, bottom:0, width:480, height:'100%', animation:'waveScroll 9s linear infinite'}}>
+        <path d="M0,40 Q60,20 120,40 T240,40 T360,40 T480,40 L480,80 L0,80 Z" fill="rgba(140,200,240,0.22)"/>
+      </svg>
+      <svg viewBox="0 0 480 80" preserveAspectRatio="none"
+        style={{position:'absolute', left:0, bottom:-6, width:480, height:'100%', opacity:0.6,
+          animation:'waveScroll 14s linear reverse infinite'}}>
+        <path d="M0,50 Q60,30 120,50 T240,50 T360,50 T480,50 L480,80 L0,80 Z" fill="rgba(140,200,240,0.14)"/>
+      </svg>
+    </div>
+  );
+}
+
+function Stars({count=12}) {
+  const stars = Array.from({length: count}).map((_, i) => {
+    const x = (i * 37.3) % 100;
+    const y = (i * 23.7) % 90;
+    const size = 1 + (i % 3) * 0.4;
+    const delay = (i % 5) * 0.3;
+    return (
+      <div key={i} style={{
+        position:'absolute', left: `${x}%`, top: `${y}%`,
+        width: size*2, height: size*2, borderRadius:'50%',
+        background:'#ffcf3c',
+        animation: `twinkle ${2 + (i%3)}s ease-in-out ${delay}s infinite`,
+      }}/>
+    );
+  });
+  return <>{stars}</>;
+}
+
+/* ============================================================
+   APP
+   ============================================================ */
+
+function App() {
+  const defaults = window.__tweakDefaults || {};
+  const [data, setData] = useState(window.CLIMA_DATA);
+  const [theme, setTheme] = useState(defaults.theme || 'auto');
+  const [density, setDensity] = useState(defaults.density || 'spacious');
+  const [timeOfDay, setTimeOfDay] = useState(defaults.timeOfDay || 'day');
+  const [font, setFont] = useState(defaults.font || 'editorial');
+  const [weather, setWeather] = useState(defaults.weather || 'auto');
+  const [rioExpanded, setRioExpanded] = useState(false);
+  const [now, setNow] = useState(new Date());
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const scrollRef = useRef(null);
+  const touchStart = useRef(null);
+
+  useEffect(() => {
+    const onUpdate = (e) => setData({...e.detail});
+    window.addEventListener('clima-data-updated', onUpdate);
+    if (window.__liveDataReady) setData({...window.CLIMA_DATA});
+    return () => window.removeEventListener('clima-data-updated', onUpdate);
+  }, []);
+
+  // Clock tick
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Auto time-of-day (based on hour)
+  useEffect(() => {
+    if (theme !== 'auto') return;
+    const h = now.getHours();
+    let t;
+    if (h >= 5 && h < 8) t = 'dawn';
+    else if (h >= 8 && h < 18) t = 'day';
+    else if (h >= 18 && h < 21) t = 'dusk';
+    else t = 'night';
+    setTimeOfDay(t);
+  }, [now, theme]);
+
+  const effectiveWeather = weather === 'auto' ? (data._weatherKey || 'parcial') : weather;
+  const isDark = theme === 'dark' || (theme === 'auto' && timeOfDay === 'night');
+  const isLight = theme === 'light' || (theme === 'auto' && timeOfDay !== 'night');
+
+  const bodyBg = isDark ? '#0a0a0c' : '#f5f3ef';
+  const bodyInk = isDark ? '#e8e8ed' : '#1a1a1f';
+  const bodyInkSoft = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)';
+
+  const updateKey = (key, val) => {
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: val } }, '*');
+  };
+
+  // Pull to refresh
+  const onTouchStart = (e) => {
+    if (scrollRef.current?.scrollTop === 0) touchStart.current = e.touches[0].clientY;
+  };
+  const onTouchMove = (e) => {
+    if (touchStart.current == null || refreshing) return;
+    const dy = e.touches[0].clientY - touchStart.current;
+    if (dy > 0 && scrollRef.current?.scrollTop === 0) setPull(Math.min(110, dy * 0.5));
+  };
+  const onTouchEnd = () => {
+    if (pull > 55 && !refreshing) {
+      setRefreshing(true);
+      bootData();
+      setTimeout(() => { setRefreshing(false); setPull(0); }, 1500);
+    } else setPull(0);
+    touchStart.current = null;
+  };
+
+  const padX = density === 'compact' ? 12 : 14;
+  const gap = density === 'compact' ? 8 : 10;
+
+  // Format current time HH:MM
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const dowLabel = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][now.getDay()];
+  const dateLabel = `${dowLabel} ${now.getDate()} ${MONTHS_ES[now.getMonth()].toUpperCase()}`;
+
+  // Condicion display según weather tweak
+  const condMap = {
+    despejado: { icon: '☀️', text: 'Despejado' },
+    parcial: { icon: '⛅', text: 'Parcialmente nublado' },
+    nublado: { icon: '☁️', text: 'Nublado' },
+    lluvia: { icon: '🌧️', text: 'Lluvia' },
+    tormenta: { icon: '⛈️', text: 'Tormenta' },
+  };
+  const condDisplay = weather === 'auto'
+    ? { icon: data.condicionIcon, text: data.condicion }
+    : condMap[weather];
+
+  return (
+    <div data-font={font} data-theme={isDark ? 'dark' : 'light'} style={{
+      width:'100%', height:'100%',
+      background: bodyBg,
+      color: bodyInk,
+      position:'relative', overflow:'hidden',
+    }}>
+      {/* Pull indicator */}
+      {(pull > 0 || refreshing) && (
+        <div className="ptr" style={{ height: Math.max(pull, refreshing ? 50 : 0), color: bodyInkSoft }}>
+          {refreshing ? 'actualizando…' : pull > 55 ? '↓ soltar' : '↓ tirar'}
+        </div>
+      )}
+
+      <div ref={scrollRef}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        style={{
+          width:'100%', height:'100%',
+          overflowY:'auto', padding: padX,
+          transform: `translateY(${pull}px)`,
+          transition: touchStart.current ? 'none' : 'transform 0.3s',
+        }}>
+
+        {/* Top bar */}
+        <div style={{
+          display:'flex', justifyContent:'space-between', alignItems:'center',
+          padding:'10px 8px 14px',
+        }}>
+          <div>
+            <div style={{fontSize:13, fontWeight:600, letterSpacing:'0.01em'}}>
+              {data.ciudad}
+            </div>
+            <div style={{fontSize:10, color: bodyInkSoft, marginTop:2,
+              fontFamily:'var(--font-mono)', letterSpacing:'0.1em', textTransform:'uppercase'}}>
+              {data.provincia} · Argentina
+            </div>
+          </div>
+          <div style={{textAlign:'right'}}>
+            <div style={{fontSize:10, color: bodyInkSoft,
+              fontFamily:'var(--font-mono)', letterSpacing:'0.1em'}}>{dateLabel}</div>
+            <div style={{fontSize:13, fontFamily:'var(--font-mono)', marginTop:2, fontWeight:500}}>{hh}:{mm}</div>
+          </div>
+        </div>
+
+        {/* BENTO GRID */}
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap, alignItems:'start'}}>
+
+          {/* === CLIMA (XL) === */}
+          <ClimaCard data={data} cond={condDisplay} weather={effectiveWeather}/>
+
+          {/* === RIO (TALL) === */}
+          <RioCard data={data} onTap={() => setRioExpanded(true)}/>
+
+          {/* === DOLAR === */}
+          <DolarCard cotiz={data.cotizaciones}/>
+
+          {/* === UV === */}
+          <UVCard uv={data.uvDetalle}/>
+
+          {/* === PRONOSTICO (WIDE) === */}
+          <PronosticoCard diario={data.diario}/>
+
+          {/* === VIENTO === */}
+          <VientoCard viento={data.viento}/>
+
+          {/* === SOL + LUNA === */}
+          <SolLunaCard sol={data.sol} luna={data.luna}/>
+
+          {/* === PESCA === */}
+          <PescaCard pesca={data.pesca}/>
+
+          {/* === HORARIO (WIDE) — próximas horas === */}
+          <HorarioCard horario={data.horario}/>
+
+          {/* === DEPORTES (WIDE) === */}
+          <DeportesCard deportes={data.deportes}/>
+
+          {/* === CINE (WIDE) === */}
+          <CineCard cine={data.cine}/>
+
+          {/* === FARMACIAS === */}
+          <FarmaciaCard farmacia={data.farmacia}/>
+
+          {/* === FERIADO === */}
+          <FeriadoCard feriados={data.feriados}/>
+
+          {/* === CAMARA (WIDE) === */}
+          <CamaraCard camara={data.camara}/>
+
+          {/* === RADAR (WIDE) === */}
+          <RadarCard radar={data.radar}/>
+
+          {/* === TELEFONOS (WIDE) === */}
+          <TelefonosCard telefonos={data.telefonos}/>
+
+          {/* === EXTENDIDO si hay (WIDE) === */}
+          {data.extendido?.length > 0 && <ExtendidoCard extendido={data.extendido}/>}
+
+        </div>
+
+        {/* footer */}
+        <div style={{
+          textAlign:'center', fontSize:10, fontFamily:'var(--font-mono)',
+          color: bodyInkSoft, padding:'16px 0 8px',
+          letterSpacing:'0.1em',
+        }}>
+          actualizado {data.actualizado} · SMN · CARU · Open-Meteo
+        </div>
+      </div>
+
+      {/* Rio expanded modal */}
+      {rioExpanded && <RioModal data={data} onClose={() => setRioExpanded(false)}/>}
+
+      {/* Tweaks panel */}
+      <div className="tweaks-panel">
+        <div className="tweaks-title">Tweaks</div>
+        <div className="tweak-row">
+          <div className="tweak-label">Hora del día <span>{timeOfDay}</span></div>
+          <div className="seg">
+            {[['dawn','Amanec'],['day','Día'],['dusk','Atardec'],['night','Noche']].map(([t,lbl]) => (
+              <button key={t}
+                className={theme==='auto' && timeOfDay===t ? 'active' : ''}
+                onClick={() => { setTimeOfDay(t); setTheme('manual'); updateKey('timeOfDay', t); updateKey('theme','manual'); }}>
+                {lbl}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="tweak-row">
+          <div className="tweak-label">Tema</div>
+          <div className="seg">
+            {['auto','light','dark'].map(t => (
+              <button key={t}
+                className={theme === t ? 'active' : ''}
+                onClick={() => { setTheme(t); updateKey('theme', t); }}>
+                {t === 'auto' ? 'Auto' : t === 'light' ? 'Claro' : 'Oscuro'}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="tweak-row">
+          <div className="tweak-label">Densidad</div>
+          <div className="seg">
+            <button className={density === 'spacious' ? 'active' : ''}
+              onClick={() => { setDensity('spacious'); updateKey('density','spacious'); }}>Espacioso</button>
+            <button className={density === 'compact' ? 'active' : ''}
+              onClick={() => { setDensity('compact'); updateKey('density','compact'); }}>Compacto</button>
+          </div>
+        </div>
+        <div className="tweak-row">
+          <div className="tweak-label">Tipografía</div>
+          <div className="seg">
+            {[['editorial','A'],['tecnico','B'],['humanista','C']].map(([f,lbl]) => (
+              <button key={f}
+                className={font === f ? 'active' : ''}
+                onClick={() => { setFont(f); updateKey('font', f); }}>{lbl}</button>
+            ))}
+          </div>
+        </div>
+        <div className="tweak-row">
+          <div className="tweak-label">Condición <span>{weather}</span></div>
+          <div className="seg">
+            {[['auto','🔄'],['despejado','☀️'],['parcial','⛅'],['nublado','☁️'],['lluvia','🌧️'],['tormenta','⛈️']].map(([w,ic]) => (
+              <button key={w}
+                className={weather === w ? 'active' : ''}
+                onClick={() => { setWeather(w); updateKey('weather', w); }}
+                title={w}>{ic}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+function ClimaCard({data, cond, weather}) {
+  return (
+    <div className="card c-clima xl" data-w={weather}>
+      {weather !== 'lluvia' && weather !== 'tormenta' && weather !== 'nublado' && <Sun/>}
+      {(weather === 'nublado' || weather === 'lluvia' || weather === 'parcial') && <Clouds density={weather==='nublado'?2:1}/>}
+      {(weather === 'lluvia' || weather === 'tormenta') && <Rain/>}
+      {weather === 'tormenta' && (
+        <div style={{position:'absolute', inset:0, background:'#fff', animation:'flashSky 7s ease-in-out infinite', pointerEvents:'none'}}/>
+      )}
+
+      <div style={{position:'relative', zIndex:2}}>
+        <div className="lbl" style={{opacity:0.9}}><LiveDot/> AHORA</div>
+      </div>
+      <div style={{flex:1}}/>
+      <div style={{position:'relative', zIndex:2}}>
+        <div className="serif pop" style={{fontSize:96, lineHeight:0.85, fontWeight:300, letterSpacing:'-0.05em'}}>
+          {data.temp}°
+        </div>
+        <div style={{fontSize:16, fontWeight:500, marginTop:-2}}>{cond.text}</div>
+        <div style={{fontSize:11, opacity:0.78, marginTop:1}}>sensación {data.tempAparente}°</div>
+        <hr className="sep" style={{margin:'12px 0 10px'}}/>
+        <div className="mono" style={{display:'flex', justifyContent:'space-between', fontSize:11, opacity:0.92, flexWrap:'wrap', gap:4}}>
+          <span>↑ {data.tempMax}°</span>
+          <span style={{opacity:0.3}}>│</span>
+          <span>↓ {data.tempMin}°</span>
+          <span style={{opacity:0.3}}>│</span>
+          <span>💧 {data.humedad}%</span>
+          <span style={{opacity:0.3}}>│</span>
+          <span>🌫 {data.visibilidad}km</span>
+          <span style={{opacity:0.3}}>│</span>
+          <span>☁ {data.nubosidad}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RioCard({data, onTap}) {
+  const r = data.rio;
+  const varCm = r.tendencia || '+0 cm';
+  const varPositive = !varCm.startsWith('-');
+  const varColor = r.estado === 'crece' ? '#9edc9e' : r.estado === 'baja' ? '#f0a0a0' : '#cfd8e0';
+  const statusText = r.estado === 'crece' ? 'creciendo' : r.estado === 'baja' ? 'bajando' : 'estable';
+
+  return (
+    <div className="card c-rio tall tap" onClick={onTap}>
+      <RiverWaves/>
+      <div style={{position:'relative', zIndex:2}}>
+        <div className="lbl" style={{color:'#b8d5f0'}}><LiveDot/> RÍO URUGUAY</div>
+        <div style={{fontSize:10, opacity:0.55, marginTop:2, fontFamily:'var(--font-mono)'}}>{r.puerto}</div>
+      </div>
+
+      <div style={{position:'relative', zIndex:2, margin:'14px 0 8px'}}>
+        <div className="serif pop" style={{fontSize:46, lineHeight:0.9, fontWeight:400, letterSpacing:'-0.03em'}}>
+          {r.nivel?.toFixed?.(2) ?? r.nivel}
+          <span style={{fontSize:16, opacity:0.6, marginLeft:2}}>m</span>
+        </div>
+        <div className="mono" style={{fontSize:12, color: varColor, marginTop:3}}>
+          {varCm} · {statusText}
+        </div>
+      </div>
+
+      <div style={{position:'relative', zIndex:2, marginBottom:8}}>
+        <Sparkline data={r.historial} color="#9ec7ed" h={26}/>
+        <div className="mono" style={{display:'flex', justifyContent:'space-between', fontSize:9, opacity:0.5, marginTop:3}}>
+          <span>{r.historial?.length || 7}d atrás</span>
+          <span>hoy</span>
+        </div>
+      </div>
+
+      <hr className="sep-dashed" style={{position:'relative', zIndex:2}}/>
+
+      <div style={{position:'relative', zIndex:2, fontSize:11, fontFamily:'var(--font-mono)'}}>
+        <div style={{fontSize:9, opacity:0.55, letterSpacing:'0.13em', marginBottom:4, textTransform:'uppercase'}}>Estaciones N→S</div>
+        {r.estaciones?.slice(0,5).map(e=>{
+          const trend = e.estado === 'crece' ? '↑' : e.estado === 'baja' ? '↓' : '–';
+          const tc = e.estado === 'crece' ? '#9edc9e' : e.estado === 'baja' ? '#f0a0a0' : 'currentColor';
+          return (
+            <div key={e.nombre} style={{display:'flex', justifyContent:'space-between', padding:'2px 0', opacity:0.85}}>
+              <span style={{fontFamily:'var(--font-sans)', fontSize:10.5}}>{e.nombre}</span>
+              <span><span style={{color:tc, marginRight:4}}>{trend}</span>{typeof e.nivel === 'number' ? e.nivel.toFixed(2) : e.nivel}m</span>
+            </div>
+          );
+        })}
+      </div>
+
+      <hr className="sep-dashed" style={{position:'relative', zIndex:2}}/>
+
+      <div className="mono" style={{position:'relative', zIndex:2, fontSize:9, opacity:0.55, textAlign:'center'}}>
+        alerta {r.alerta}m · evac. {r.evacuacion}m {r.tempAgua ? `· agua ${r.tempAgua}°` : ''}
+      </div>
+    </div>
+  );
+}
+
+function DolarCard({cotiz}) {
+  const blue = cotiz?.find(c => c.nombre === 'Blue');
+  const oficial = cotiz?.find(c => c.nombre === 'Oficial');
+  const mep = cotiz?.find(c => c.nombre === 'MEP');
+  const btc = cotiz?.find(c => c.nombre === 'Bitcoin');
+  return (
+    <div className="card c-dolar reg">
+      <div className="lbl">$ DÓLAR</div>
+      <div style={{marginTop:6}}>
+        <div style={{fontSize:10, opacity:0.72}}>Blue · venta</div>
+        <div className="serif pop" style={{fontSize:30, fontWeight:500, lineHeight:1, letterSpacing:'-0.02em'}}>
+          ${blue?.venta?.toLocaleString('es-AR') ?? '—'}
+        </div>
+      </div>
+      <hr className="sep"/>
+      <div className="mono" style={{display:'flex', justifyContent:'space-between', fontSize:10}}>
+        <span><span style={{opacity:0.6}}>Of.</span> {oficial?.venta ?? '—'}</span>
+        <span style={{opacity:0.3}}>│</span>
+        <span><span style={{opacity:0.6}}>MEP</span> {mep?.venta ?? '—'}</span>
+      </div>
+      {btc && (
+        <div className="mono" style={{fontSize:10, marginTop:5}}>
+          <span style={{opacity:0.6}}>BTC</span> <span style={{fontWeight:600}}>US${btc.venta.toLocaleString('en-US')}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UVCard({uv}) {
+  return (
+    <div className="card c-uv reg">
+      <div className="lbl">☀ ÍNDICE UV</div>
+      <div style={{display:'flex', alignItems:'baseline', gap:8, marginTop:6}}>
+        <div className="serif" style={{fontSize:48, lineHeight:0.9, fontWeight:300}}>{uv.valor}</div>
+        <div style={{fontSize:13, fontWeight:500}}>{uv.etiqueta}</div>
+      </div>
+      <hr className="sep"/>
+      <UVMeter value={uv.valor}/>
+      <div className="mono" style={{display:'flex', justifyContent:'space-between', fontSize:9, opacity:0.75, marginTop:3}}>
+        <span>0</span><span>3</span><span>6</span><span>8</span><span>11+</span>
+      </div>
+      <div style={{fontSize:10, opacity:0.88, marginTop:5}}>{uv.recomendacion}</div>
+    </div>
+  );
+}
+
+function PronosticoCard({diario}) {
+  return (
+    <div className="card c-prn wide">
+      <div className="lbl">☁ PRÓXIMOS 3 DÍAS</div>
+      <hr className="sep"/>
+      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr'}}>
+        {diario?.slice(0,3).map((d, idx) => (
+          <React.Fragment key={idx}>
+            {idx > 0 && <div style={{width:1, background:'currentColor', opacity:0.15}}/>}
+            <div style={{textAlign:'center', padding:'0 4px'}}>
+              <div className="mono" style={{fontSize:10, opacity:0.7}}>{d.dia} {d.fecha}</div>
+              <div className="bob" style={{fontSize:26, margin:'4px 0', animationDelay:`${idx * -0.5}s`}}>{d.icon}</div>
+              <div style={{fontSize:10, opacity:0.65, marginBottom:3}}>{d.cond}</div>
+              <div className="mono" style={{fontSize:12}}>
+                <span style={{fontWeight:600}}>{d.max}°</span>
+                <span style={{opacity:0.5}}> / {d.min}°</span>
+              </div>
+              <div className="mono" style={{fontSize:9, opacity:0.55, marginTop:2}}>💧 {d.prob}%</div>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function VientoCard({viento}) {
+  return (
+    <div className="card c-vto reg">
+      <div className="lbl">💨 VIENTO</div>
+      <div style={{display:'flex', alignItems:'center', gap:10, marginTop:6}}>
+        <Compass deg={viento.direccionDeg}/>
+        <div>
+          <div className="serif" style={{fontSize:30, lineHeight:1, fontWeight:400}}>
+            {viento.velocidad}<span style={{fontSize:12, opacity:0.7, marginLeft:3}}>km/h</span>
+          </div>
+          <div style={{fontSize:11, opacity:0.78}}>{viento.direccion} · {viento.beaufortNombre.toLowerCase()}</div>
+        </div>
+      </div>
+      <hr className="sep"/>
+      <div className="mono" style={{display:'flex', justifyContent:'space-between', fontSize:10}}>
+        <span><span style={{opacity:0.6}}>ráfaga</span> {viento.rafaga}</span>
+        <span style={{opacity:0.3}}>│</span>
+        <span><span style={{opacity:0.6}}>beaufort</span> {viento.beaufort}</span>
+      </div>
+    </div>
+  );
+}
+
+function SolLunaCard({sol, luna}) {
+  return (
+    <div className="card c-sol reg">
+      <div className="lbl">☀ SOL · 🌙 LUNA</div>
+      <div style={{display:'flex', gap:10, marginTop:8}}>
+        <div style={{flex:1}}>
+          <div className="mono" style={{fontSize:9, opacity:0.7}}>↑ AMANECER</div>
+          <div className="mono" style={{fontSize:16, fontWeight:500}}>{sol.salida}</div>
+          <div className="mono" style={{fontSize:9, opacity:0.7, marginTop:4}}>↓ ATARDECER</div>
+          <div className="mono" style={{fontSize:16, fontWeight:500}}>{sol.puesta}</div>
+        </div>
+        <div style={{width:1, background:'currentColor', opacity:0.2}}/>
+        <div style={{flex:1, textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', gap:2}}>
+          <div style={{animation:'moonGlow 3s ease-in-out infinite'}}>
+            <MoonPhase illumination={luna.iluminacion}/>
+          </div>
+          <div style={{fontSize:10, marginTop:2, fontWeight:500, textAlign:'center', lineHeight:1.2}}>{luna.fase}</div>
+          <div className="mono" style={{fontSize:9, opacity:0.7}}>{luna.iluminacion}% ilum.</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PescaCard({pesca}) {
+  return (
+    <div className="card c-pesca reg">
+      <div className="lbl">🎣 ÍNDICE DE PESCA</div>
+      <div style={{display:'flex', alignItems:'baseline', gap:8, marginTop:6}}>
+        <div className="serif" style={{fontSize:42, lineHeight:0.9, fontWeight:300}}>
+          {pesca.indice}<span style={{fontSize:14, opacity:0.6}}>/10</span>
+        </div>
+        <div className="serif" style={{fontSize:16, fontStyle:'italic', color:'#9edc9e'}}>{pesca.etiqueta}</div>
+      </div>
+      <hr className="sep"/>
+      <div style={{display:'flex', flexWrap:'wrap', gap:4, fontSize:9, fontFamily:'var(--font-mono)'}}>
+        {pesca.factores?.slice(0,4).map(f => (
+          <span key={f.name} style={{
+            padding:'3px 7px', borderRadius:999,
+            background:'rgba(255,255,255,0.08)',
+            color: f.status==='good' ? '#9edc9e' : f.status==='bad' ? '#f0a0a0' : 'currentColor',
+          }}>{f.icon} {f.name}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HorarioCard({horario}) {
+  if (!horario?.length) return null;
+  const temps = horario.map(h => h.temp);
+  const min = Math.min(...temps), max = Math.max(...temps);
+  const range = (max - min) || 1;
+  return (
+    <div className="card c-horario wide">
+      <div className="lbl">🕐 PRÓXIMAS HORAS</div>
+      <hr className="sep"/>
+      <div style={{display:'flex', gap:12, overflowX:'auto', marginRight:-10, paddingRight:10, paddingBottom:2}}>
+        {horario.slice(0,12).map((h, i) => {
+          const barH = 28;
+          const dotY = barH - ((h.temp - min) / range) * (barH - 6) - 3;
+          return (
+            <div key={i} style={{flexShrink:0, textAlign:'center', minWidth:32}}>
+              <div className="mono" style={{fontSize:9, opacity:0.7}}>{h.hora}</div>
+              <div style={{fontSize:14, margin:'2px 0'}}>{h.icon}</div>
+              <div className="serif" style={{fontSize:15, fontWeight:400}}>{h.temp}°</div>
+              <div style={{width:3, height:barH, background:'currentColor', opacity:0.15, borderRadius:2, position:'relative', margin:'3px auto 0'}}>
+                <div style={{position:'absolute', top:dotY, left:-1, width:5, height:5, borderRadius:'50%', background:'#ffcf3c'}}/>
+              </div>
+              <div className="mono" style={{fontSize:8, opacity: h.prob > 30 ? 1 : 0.5, color: h.prob > 30 ? '#9ec7ed' : 'currentColor', marginTop:2}}>{h.prob}%</div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ExtendidoCard({extendido}) {
+  const allT = extendido.flatMap(d => [d.min, d.max]);
+  const gMin = Math.min(...allT), gMax = Math.max(...allT);
+  const range = gMax - gMin || 1;
+  return (
+    <div className="card c-horario wide">
+      <div className="lbl">📆 EXTENDIDO · 7 DÍAS</div>
+      <hr className="sep"/>
+      {extendido.map((d, i) => {
+        const left = ((d.min - gMin) / range) * 100;
+        const width = ((d.max - d.min) / range) * 100;
+        return (
+          <div key={i} style={{
+            display:'grid', gridTemplateColumns:'42px 22px 1fr 56px',
+            alignItems:'center', gap:8, padding:'5px 0',
+            borderTop: i > 0 ? '1px dashed rgba(255,255,255,0.12)' : 'none',
+            fontSize:11,
+          }}>
+            <span className="mono" style={{opacity:0.75}}>{d.dia} {d.fecha}</span>
+            <span style={{fontSize:16, textAlign:'center'}}>{d.icon}</span>
+            <div style={{position:'relative', height:4, background:'rgba(255,255,255,0.1)', borderRadius:2}}>
+              <div style={{position:'absolute', left:`${left}%`, width:`${width}%`, top:0, bottom:0,
+                background:'linear-gradient(90deg, #6fb8e8, #ffcf3c, #f08a42)', borderRadius:2}}/>
+            </div>
+            <span className="mono" style={{fontSize:11, textAlign:'right'}}>
+              <span style={{fontWeight:600}}>{d.max}°</span>
+              <span style={{opacity:0.5}}>/{d.min}°</span>
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DeportesCard({deportes}) {
+  return (
+    <div className="card c-dep wide">
+      <div className="lbl">⚽ PRÓXIMOS PARTIDOS</div>
+      <hr className="sep"/>
+      {deportes?.slice(0,4).map((d, i) => (
+        <div key={i} style={{
+          display:'grid', gridTemplateColumns:'50px 1fr 80px',
+          alignItems:'center', padding:'5px 0', gap:8,
+          borderTop: i > 0 ? '1px dashed rgba(213,184,232,0.2)' : 'none',
+        }}>
+          <div className="mono" style={{fontSize:8, opacity:0.55, letterSpacing:'0.1em'}}>{d.liga}</div>
+          <div style={{fontSize:12}}>
+            {d.local} <span style={{opacity:0.4}}>vs</span> {d.visitante}
+          </div>
+          <div className="mono" style={{fontSize:10, textAlign:'right', opacity:0.82}}>{d.hora}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CineCard({cine}) {
+  return (
+    <div className="card c-cine wide">
+      <Stars count={8}/>
+      <div style={{position:'relative', zIndex:2}}>
+        <div className="lbl" style={{color:'#ffcf3c'}}>🎬 CINE SAN MARTÍN</div>
+        <div style={{fontSize:10, opacity:0.6, marginTop:2, fontFamily:'var(--font-mono)', color:'#ffcf3c'}}>cartelera · hoy</div>
+        <hr className="sep" style={{borderColor:'rgba(255,207,60,0.3)', opacity:1}}/>
+        {cine?.slice(0,3).map((c, i) => (
+          <div key={i} style={{
+            display:'grid', gridTemplateColumns:'42px 1fr 32px',
+            alignItems:'baseline', padding:'4px 0', gap:8,
+            borderTop: i > 0 ? '1px dashed rgba(255,207,60,0.2)' : 'none',
+          }}>
+            <span className="mono" style={{fontSize:12, fontWeight:600}}>{c.hora}</span>
+            <span style={{fontSize:12, color:'#fff'}}>{c.titulo}</span>
+            <span className="mono" style={{fontSize:9, opacity:0.75, textAlign:'right'}}>{c.formato}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FarmaciaCard({farmacia}) {
+  return (
+    <div className="card c-farm reg">
+      <div className="lbl">⚕ FARMACIAS</div>
+      <div style={{fontSize:10, opacity:0.75, marginTop:2, fontFamily:'var(--font-mono)'}}>de turno · hoy</div>
+      <hr className="sep"/>
+      <div style={{fontSize:14, fontWeight:600}}>{farmacia.nombre}</div>
+      {farmacia.direccion && <div style={{fontSize:11, opacity:0.82, marginTop:1}}>{farmacia.direccion}</div>}
+      {farmacia.telefono && <div className="mono" style={{fontSize:11, opacity:0.78, marginTop:1}}>{farmacia.telefono}</div>}
+      {farmacia.otras?.length > 0 && (
+        <>
+          <hr className="sep-dashed"/>
+          {farmacia.otras.slice(0,2).map((o,i) => (
+            <div key={i} style={{fontSize:10, opacity:0.7}}>+ {o}</div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+function FeriadoCard({feriados}) {
+  const first = feriados?.[0];
+  const rest = feriados?.slice(1, 3) || [];
+  if (!first) return null;
+  return (
+    <div className="card c-fer reg">
+      <div className="lbl">🇦🇷 FERIADO</div>
+      <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginTop:8, gap:8}}>
+        <div style={{flex:1, minWidth:0}}>
+          <div className="serif" style={{fontSize:15, fontWeight:500, lineHeight:1.15}}>{first.nombre}</div>
+          <div className="serif" style={{fontSize:10, opacity:0.72, marginTop:3, fontStyle:'italic'}}>{first.tipo?.toLowerCase()}</div>
+        </div>
+        <div style={{textAlign:'right'}}>
+          <div className="mono" style={{fontSize:18, fontWeight:600, whiteSpace:'nowrap'}}>{first.fecha}</div>
+          <div style={{fontSize:10, opacity:0.75}}>en {first.dias} días</div>
+        </div>
+      </div>
+      {rest.length > 0 && (
+        <>
+          <hr className="sep"/>
+          <div className="mono" style={{fontSize:9, opacity:0.72, lineHeight:1.5}}>
+            próx · {rest.map(r => r.fecha).join(' · ')}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function CamaraCard({camara}) {
+  return (
+    <div className="card c-camara wide" style={{minHeight:140, padding:0, overflow:'hidden'}}>
+      <div style={{
+        position:'absolute', inset:0,
+        background:'linear-gradient(180deg, #2a4060 0%, #1a3050 50%, #0f2030 100%)',
+      }}>
+        <div style={{position:'absolute', inset:0,
+          background:'repeating-linear-gradient(45deg, transparent 0 8px, rgba(255,255,255,0.04) 8px 16px)'}}/>
+      </div>
+      <div style={{position:'absolute', top:10, left:10, zIndex:2,
+        fontSize:9, fontFamily:'var(--font-mono)', color:'#fff',
+        letterSpacing:'0.14em', background:'rgba(0,0,0,0.5)',
+        padding:'4px 8px', borderRadius:4, display:'flex', alignItems:'center', gap:6}}>
+        <span style={{width:5, height:5, borderRadius:'50%', background:'#ff3b30',
+          boxShadow:'0 0 6px #ff3b30', animation:'livePulse 1.4s ease-in-out infinite'}}/>
+        EN VIVO · {camara.ubicacion}
+      </div>
+      <div style={{position:'absolute', bottom:10, right:10, zIndex:2,
+        fontSize:9, fontFamily:'var(--font-mono)', color:'rgba(255,255,255,0.5)'}}>📹 cámara</div>
+    </div>
+  );
+}
+
+function RadarCard({radar}) {
+  return (
+    <div className="card c-radar wide" style={{minHeight:160}}>
+      <div className="lbl">🌧 RADAR</div>
+      <hr className="sep"/>
+      <div style={{flex:1, position:'relative', marginTop:4, minHeight:100}}>
+        <svg viewBox="0 0 320 120" preserveAspectRatio="none" style={{width:'100%', height:110}}>
+          <defs>
+            <radialGradient id="radG" cx="50%" cy="50%" r="50%">
+              <stop offset="0" stopColor="#6fb8e8" stopOpacity="0.35"/>
+              <stop offset="1" stopColor="#6fb8e8" stopOpacity="0"/>
+            </radialGradient>
+          </defs>
+          {[40,70,100].map(r => (
+            <circle key={r} cx="160" cy="60" r={r} fill="none" stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5"/>
+          ))}
+          <line x1="160" y1="5" x2="160" y2="115" stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5"/>
+          <line x1="30" y1="60" x2="290" y2="60" stroke="currentColor" strokeOpacity="0.15" strokeWidth="0.5"/>
+          <circle cx="160" cy="60" r="3" fill="#ffcf3c"/>
+          <circle cx="160" cy="60" r="100" fill="url(#radG)"/>
+        </svg>
+        <div style={{
+          position:'absolute', top:6, right:6,
+          fontSize:9, fontFamily:'var(--font-mono)', opacity:0.65, letterSpacing:'0.1em',
+        }}>{radar.estado}</div>
+      </div>
+    </div>
+  );
+}
+
+function TelefonosCard({telefonos}) {
+  return (
+    <div className="card c-tel wide">
+      <div className="lbl">📞 TELÉFONOS ÚTILES</div>
+      <hr className="sep"/>
+      <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'4px 14px'}}>
+        {telefonos?.map((t, i) => (
+          <div key={i} style={{display:'flex', justifyContent:'space-between', alignItems:'center', padding:'3px 0', fontSize:11}}>
+            <span style={{display:'flex', alignItems:'center', gap:6}}>
+              <span style={{fontSize:12}}>{t.icon}</span>{t.nombre}
+            </span>
+            <span className="mono" style={{fontSize:10, fontWeight:600}}>{t.num}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   RIO EXPANDED MODAL
+   ============================================================ */
+
+function RioModal({data, onClose}) {
+  const r = data.rio;
+  return (
+    <div onClick={onClose} style={{
+      position:'fixed', inset:0, background:'rgba(0,0,0,0.75)', zIndex:9998,
+      display:'flex', alignItems:'center', justifyContent:'center',
+      animation:'fadeIn 0.25s ease-out', padding:16,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background:'linear-gradient(180deg, #123458 0%, #081c38 100%)',
+        color:'#b8d5f0', borderRadius:22, padding:22, maxWidth:460, width:'100%',
+        maxHeight:'90vh', overflowY:'auto', position:'relative',
+      }}>
+        <button onClick={onClose} style={{
+          position:'absolute', top:14, right:14, width:30, height:30, borderRadius:'50%',
+          border:'1px solid rgba(255,255,255,0.15)', background:'rgba(255,255,255,0.05)',
+          color:'#b8d5f0', cursor:'pointer', fontSize:16,
+        }}>×</button>
+        <div className="lbl"><LiveDot/> RÍO URUGUAY · DETALLE</div>
+        <div className="serif" style={{fontSize:60, lineHeight:0.9, fontWeight:300, letterSpacing:'-0.04em', marginTop:12}}>
+          {r.nivel?.toFixed?.(2)}<span style={{fontSize:22, opacity:0.6}}>m</span>
+        </div>
+        <div style={{fontSize:12, marginTop:4}}>en {r.puerto} · {r.tendencia} · {r.estado}</div>
+        <hr className="sep"/>
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, fontSize:11}}>
+          <div>
+            <div className="mono" style={{fontSize:9, opacity:0.6}}>MIN 7D</div>
+            <div className="mono" style={{fontSize:14}}>{r.min7d}m</div>
+          </div>
+          <div>
+            <div className="mono" style={{fontSize:9, opacity:0.6}}>MAX 7D</div>
+            <div className="mono" style={{fontSize:14}}>{r.max7d}m</div>
+          </div>
+          <div>
+            <div className="mono" style={{fontSize:9, opacity:0.6}}>AGUA</div>
+            <div className="mono" style={{fontSize:14}}>{r.tempAgua ?? '—'}°</div>
+          </div>
+        </div>
+        <hr className="sep"/>
+        <Sparkline data={r.historial} color="#9ec7ed" h={60}/>
+        <hr className="sep"/>
+        <div className="lbl" style={{marginBottom:6}}>Todas las estaciones</div>
+        {r.estaciones?.map(e => {
+          const trend = e.estado === 'crece' ? '↑' : e.estado === 'baja' ? '↓' : '–';
+          const tc = e.estado === 'crece' ? '#9edc9e' : e.estado === 'baja' ? '#f0a0a0' : 'currentColor';
+          return (
+            <div key={e.nombre} className="mono" style={{
+              display:'flex', justifyContent:'space-between', padding:'6px 0',
+              borderTop:'1px dashed rgba(255,255,255,0.1)', fontSize:12,
+            }}>
+              <span style={{fontFamily:'var(--font-sans)'}}>{e.nombre}</span>
+              <span>
+                <span style={{color:tc, marginRight:6}}>{trend} {e.variacion != null ? (e.variacion >= 0 ? '+' : '') + e.variacion.toFixed(2) : ''}</span>
+                {typeof e.nivel === 'number' ? e.nivel.toFixed(2) : e.nivel}m
+              </span>
+            </div>
+          );
+        })}
+        <div className="mono" style={{fontSize:9, opacity:0.5, marginTop:12, textAlign:'center'}}>
+          alerta {r.alerta}m · evacuación {r.evacuacion}m · fuente CARU
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Mount
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+
+<script type="application/json" id="tweak-defaults">
+{"theme":"auto","density":"spacious","timeOfDay":"day","weather":"auto","font":"editorial"}
+</script>
+
+<script>
+(function(){
+  const defaults = /*EDITMODE-BEGIN*/{
+    "theme": "auto",
+    "density": "spacious",
+    "timeOfDay": "day",
+    "weather": "auto",
+    "font": "editorial"
+  }/*EDITMODE-END*/;
+  window.__tweakDefaults = defaults;
+
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === '__activate_edit_mode') {
+      document.querySelector('.tweaks-panel')?.classList.add('visible');
+    }
+    if (d.type === '__deactivate_edit_mode') {
+      document.querySelector('.tweaks-panel')?.classList.remove('visible');
+    }
+  });
+  window.parent.postMessage({type:'__edit_mode_available'}, '*');
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootData);
+  } else {
+    bootData();
+  }
+})();
+</script>
+</body>
+</html>
